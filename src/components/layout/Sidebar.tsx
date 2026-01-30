@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, PlusCircle, BookOpen, Heart, Coffee, Map } from 'lucide-react'
+import { Home, PlusCircle, BookOpen, Heart, Coffee, Map, BarChart2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -8,6 +8,7 @@ const navItems = [
   { to: '/my-log', icon: BookOpen, label: '我的日誌' },
   { to: '/wishlist', icon: Heart, label: '願望清單' },
   { to: '/explore', icon: Map, label: '探索地圖' },
+  { to: '/stats', icon: BarChart2, label: '統計分析' },
 ]
 
 export function Sidebar() {

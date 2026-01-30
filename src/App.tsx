@@ -6,6 +6,7 @@ import { CreatePost } from '@/pages/CreatePost'
 import { MyLog } from '@/pages/MyLog'
 import { Wishlist } from '@/pages/Wishlist'
 import { ExploreMap } from '@/pages/ExploreMap'
+import { Stats } from './pages/Stats'
 
 function App() {
   return (
@@ -14,9 +15,11 @@ function App() {
         <Route element={<AppShell />}>
           <Route path="/" element={<Home />} />
           <Route path="/create" element={<CreatePost />} />
+          <Route path="/edit/:id" element={<CreatePost />} />
           <Route path="/my-log" element={<MyLog />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/explore" element={<ExploreMap />} />
+          <Route path="/stats" element={<Stats />} />
         </Route>
       </Routes>
       <Toaster />
