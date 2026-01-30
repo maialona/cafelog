@@ -22,17 +22,8 @@ export function StarRating({
 }: StarRatingProps) {
   return (
     <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <button
-          key={star}
-          type="button"
-          disabled={readonly}
-          onClick={() => onRatingChange?.(star)}
-          className={cn(
-            'transition-colors',
-            readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110'
-          )}
-        >
+      {[1, 2, 3, 4, 5].map((star) => {
+        const starElement = (
           <Star
             className={cn(
               sizeClasses[size],
@@ -41,8 +32,27 @@ export function StarRating({
                 : 'fill-none text-muted-foreground'
             )}
           />
-        </button>
-      ))}
+        )
+
+        if (readonly) {
+          return (
+            <span key={star} className="inline-flex">
+              {starElement}
+            </span>
+          )
+        }
+
+        return (
+          <button
+            key={star}
+            type="button"
+            onClick={() => onRatingChange?.(star)}
+            className="transition-colors cursor-pointer hover:scale-110"
+          >
+            {starElement}
+          </button>
+        )
+      })}
     </div>
   )
 }
