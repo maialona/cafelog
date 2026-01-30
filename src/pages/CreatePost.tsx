@@ -185,30 +185,31 @@ export function CreatePost() {
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <Card>
-        <CardHeader>
-          <CardTitle className="tracking-wide">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-bold tracking-wide py-1">
             {isWishlist ? '加入願望清單' : '建立新紀錄'}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* 願望清單切換 */}
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="wishlist" className="text-base font-bold tracking-wide leading-relaxed block mb-1">加入願望清單</Label>
-              <p className="text-sm text-muted-foreground tracking-wide leading-relaxed">
+          <div className="flex items-start justify-between py-2">
+            <div className="space-y-1">
+              <Label htmlFor="wishlist" className="text-base font-bold block">加入願望清單</Label>
+              <p className="text-sm text-muted-foreground">
                 標記為想去的咖啡廳
               </p>
             </div>
             <Switch
               id="wishlist"
+              className="mt-1"
               checked={isWishlist}
               onCheckedChange={setIsWishlist}
             />
           </div>
 
           {/* 地點搜尋 */}
-          <div className="space-y-2">
-            <Label>搜尋咖啡廳位置</Label>
+          <div className="space-y-3">
+            <Label className="text-base font-semibold block">搜尋咖啡廳位置</Label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Input
@@ -252,8 +253,8 @@ export function CreatePost() {
           </div>
 
           {/* 咖啡廳名稱 */}
-          <div className="space-y-2">
-            <Label htmlFor="cafeName">咖啡廳名稱 *</Label>
+          <div className="space-y-3">
+            <Label htmlFor="cafeName" className="text-base font-semibold block">咖啡廳名稱 *</Label>
             <Input
               id="cafeName"
               value={cafeName}
