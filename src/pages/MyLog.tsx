@@ -70,15 +70,15 @@ function CafeListItem({
           </div>
 
           {/* 資訊 */}
-          <div className="flex-1 min-w-0 space-y-1.5 cursor-pointer" onClick={onView}>
-            <h3 className="font-semibold truncate hover:text-primary leading-tight">
+          <div className="flex-1 min-w-0 space-y-1.5 cursor-pointer text-left" onClick={onView}>
+            <h3 className="font-bold text-base leading-normal line-clamp-1 tracking-wide hover:text-primary" title={cafe.name}>
               {cafe.name}
             </h3>
             <div>
               <StarRating rating={cafe.rating} size="sm" readonly />
             </div>
             {cafe.notes && (
-              <p className="text-sm text-muted-foreground line-clamp-2 leading-snug">
+              <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed tracking-wide">
                 {cafe.notes}
               </p>
             )}

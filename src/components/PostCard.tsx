@@ -50,13 +50,19 @@ export function PostCard({ cafe, onClick }: PostCardProps) {
 
       <CardContent className="p-4 space-y-2">
         {/* 名稱 */}
-        <h3 className="font-semibold truncate leading-tight">{cafe.name}</h3>
+        <div className="w-full">
+          <h3 className="font-bold text-lg leading-normal line-clamp-1 tracking-wide" title={cafe.name}>
+            {cafe.name}
+          </h3>
+        </div>
 
         {/* 地址 */}
         {cafe.address && (
-          <div className="flex items-start gap-1 text-xs text-muted-foreground">
+          <div className="flex items-start gap-1 text-xs text-muted-foreground w-full">
             <MapPin className="h-3 w-3 shrink-0 mt-0.5" />
-            <span className="truncate leading-tight">{cafe.address}</span>
+            <span className="leading-normal line-clamp-1 text-left flex-1" title={cafe.address}>
+              {cafe.address}
+            </span>
           </div>
         )}
 
