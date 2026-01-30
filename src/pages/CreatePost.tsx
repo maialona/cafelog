@@ -186,7 +186,7 @@ export function CreatePost() {
     <div className="p-4 max-w-2xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="tracking-wide">
             {isWishlist ? '加入願望清單' : '建立新紀錄'}
           </CardTitle>
         </CardHeader>
@@ -194,8 +194,8 @@ export function CreatePost() {
           {/* 願望清單切換 */}
           <div className="flex items-center justify-between">
             <div>
-              <Label htmlFor="wishlist">加入願望清單</Label>
-              <p className="text-xs text-muted-foreground">
+              <Label htmlFor="wishlist" className="text-base font-bold tracking-wide leading-relaxed block mb-1">加入願望清單</Label>
+              <p className="text-sm text-muted-foreground tracking-wide leading-relaxed">
                 標記為想去的咖啡廳
               </p>
             </div>
