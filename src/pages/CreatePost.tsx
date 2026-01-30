@@ -192,24 +192,24 @@ export function CreatePost() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* 願望清單切換 */}
-          <div className="flex items-start justify-between py-2">
-            <div className="space-y-1">
-              <Label htmlFor="wishlist" className="text-base font-bold block">加入願望清單</Label>
+          <div className="flex flex-row items-center justify-between border rounded-lg p-4 shadow-sm">
+            <div className="space-y-0.5">
+              <Label htmlFor="wishlist" className="text-base font-bold">加入願望清單</Label>
               <p className="text-sm text-muted-foreground">
                 標記為想去的咖啡廳
               </p>
             </div>
             <Switch
               id="wishlist"
-              className="mt-1"
               checked={isWishlist}
               onCheckedChange={setIsWishlist}
             />
           </div>
 
           {/* 地點搜尋 */}
-          <div className="space-y-3">
-            <Label className="text-base font-semibold block">搜尋咖啡廳位置</Label>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label className="text-base font-semibold block">搜尋咖啡廳位置</Label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Input
@@ -251,9 +251,10 @@ export function CreatePost() {
               </Button>
             </div>
           </div>
+          </div>
 
           {/* 咖啡廳名稱 */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <Label htmlFor="cafeName" className="text-base font-semibold block">咖啡廳名稱 *</Label>
             <Input
               id="cafeName"
