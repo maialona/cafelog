@@ -1,51 +1,55 @@
-import { useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import { useQuery } from '@tanstack/react-query'
-import { Map, Coffee, MapPin } from 'lucide-react'
-import L from 'leaflet'
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
-import markerIcon from 'leaflet/dist/images/marker-icon.png'
-import markerShadow from 'leaflet/dist/images/marker-shadow.png'
-import { FogOverlay } from '@/components/map/FogOverlay'
-import { getAllVisitedCoords, getCafeStats, getVisitedCafes } from '@/services/cafes'
-import type { CafePost } from '@/types/cafe'
+import { useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { useQuery } from "@tanstack/react-query";
+import { Map, Coffee, MapPin } from "lucide-react";
+import L from "leaflet";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { FogOverlay } from "@/components/map/FogOverlay";
+import {
+  getAllVisitedCoords,
+  getCafeStats,
+  getVisitedCafes,
+} from "@/services/cafes";
+import type { CafePost } from "@/types/cafe";
 
 // 修復 Leaflet 預設圖標
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
   iconUrl: markerIcon,
-  shadowUrl: markerShadow
-})
+  shadowUrl: markerShadow,
+});
 
 // 台灣中心座標
-const TAIWAN_CENTER: [number, number] = [23.5, 121]
-const DEFAULT_ZOOM = 8
+const TAIWAN_CENTER: [number, number] = [23.5, 121];
+const DEFAULT_ZOOM = 8;
 
 export function ExploreMap() {
-  const [mapReady, setMapReady] = useState(false)
+  const [mapReady, setMapReady] = useState(false);
 
   // 取得所有已打卡座標
   const { data: visitedCoords = [] } = useQuery({
-    queryKey: ['visitedCoords'],
-    queryFn: getAllVisitedCoords
-  })
+    queryKey: ["visitedCoords"],
+    queryFn: getAllVisitedCoords,
+  });
 
   // 取得已打卡的咖啡廳（用於標記）
   const { data: visitedCafes = [] } = useQuery({
-    queryKey: ['visitedCafes'],
-    queryFn: getVisitedCafes
-  })
+    queryKey: ["visitedCafes"],
+    queryFn: getVisitedCafes,
+  });
 
   // 取得統計資料
   const { data: stats } = useQuery({
-    queryKey: ['cafeStats'],
-    queryFn: getCafeStats
-  })
+    queryKey: ["cafeStats"],
+    queryFn: getCafeStats,
+  });
 
   return (
     <div className="relative h-[calc(100vh-4rem)] md:h-[calc(100vh-1.5rem)]">
       {/* 統計資訊面板 */}
-      <div className="absolute top-4 left-4 z-[600] bg-card/95 backdrop-blur rounded-lg shadow-lg p-4 max-w-xs">
+      <div className="absolute top-4 left-4 md:left-20 lg:left-72 z-[600] bg-card/95 backdrop-blur rounded-lg shadow-lg p-4 max-w-xs">
         <div className="flex items-center gap-2 mb-3">
           <Map className="h-5 w-5 text-primary" />
           <h2 className="font-semibold">探索地圖</h2>
@@ -71,7 +75,7 @@ export function ExploreMap() {
       <MapContainer
         center={TAIWAN_CENTER}
         zoom={DEFAULT_ZOOM}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: "100%", height: "100%" }}
         scrollWheelZoom={true}
         whenReady={() => setMapReady(true)}
       >
@@ -81,14 +85,13 @@ export function ExploreMap() {
         />
 
         {/* 迷霧覆蓋層 */}
-        {mapReady && <FogOverlay visitedCoords={visitedCoords} revealRadius={200} />}
+        {mapReady && (
+          <FogOverlay visitedCoords={visitedCoords} revealRadius={200} />
+        )}
 
         {/* 已打卡的咖啡廳標記 */}
         {visitedCafes.map((cafe: CafePost) => (
-          <Marker
-            key={cafe.id}
-            position={[cafe.coords.lat, cafe.coords.lng]}
-          >
+          <Marker key={cafe.id} position={[cafe.coords.lat, cafe.coords.lng]}>
             <Popup>
               <div className="min-w-[150px]">
                 <h3 className="font-semibold">{cafe.name}</h3>
@@ -115,5 +118,5 @@ export function ExploreMap() {
         </div>
       </div>
     </div>
-  )
+  );
 }
