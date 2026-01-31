@@ -126,7 +126,6 @@ export function Stats() {
                       axisLine={false} 
                       tickLine={false}
                       tick={{ fontSize: 12 }}
-                      interval={0}
                     />
                     <YAxis 
                       axisLine={false} 
