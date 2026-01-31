@@ -1,17 +1,10 @@
-import { useState, useRef, useMemo, useCallback } from 'react'
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
-import type { LatLngExpression, Marker as LeafletMarker } from 'leaflet'
-import L from 'leaflet'
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
-import markerIcon from 'leaflet/dist/images/marker-icon.png'
-import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+import { useState, useCallback, useEffect } from 'react'
+import Map, { Marker, NavigationControl, FullscreenControl, GeolocateControl, MarkerDragEvent } from 'react-map-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
+import { MapPin } from 'lucide-react'
 
-// 修復 Leaflet 預設圖標問題
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow
-})
+// Mapbox Access Token
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN
 
 interface DraggableMarkerMapProps {
   initialPosition: { lat: number; lng: number }
@@ -22,59 +15,7 @@ interface DraggableMarkerMapProps {
 }
 
 /**
- * 可拖曳的標記子元件
- */
-function DraggableMarkerComponent({
-  position,
-  onPositionChange
-}: {
-  position: { lat: number; lng: number }
-  onPositionChange: (coords: { lat: number; lng: number }) => void
-}) {
-  const markerRef = useRef<LeafletMarker>(null)
-
-  const eventHandlers = useMemo(
-    () => ({
-      dragend() {
-        const marker = markerRef.current
-        if (marker) {
-          const latlng = marker.getLatLng()
-          onPositionChange({ lat: latlng.lat, lng: latlng.lng })
-        }
-      }
-    }),
-    [onPositionChange]
-  )
-
-  return (
-    <Marker
-      draggable={true}
-      eventHandlers={eventHandlers}
-      position={[position.lat, position.lng]}
-      ref={markerRef}
-    />
-  )
-}
-
-/**
- * 點擊地圖設定位置的事件處理
- */
-function MapClickHandler({
-  onPositionChange
-}: {
-  onPositionChange: (coords: { lat: number; lng: number }) => void
-}) {
-  useMapEvents({
-    click(e) {
-      onPositionChange({ lat: e.latlng.lat, lng: e.latlng.lng })
-    }
-  })
-  return null
-}
-
-/**
- * 可拖曳標記的地圖元件
- * 用於在建立紀錄時微調位置
+ * 可拖曳標記的地圖元件 (Mapbox 版本)
  */
 export function DraggableMarkerMap({
   initialPosition,
@@ -83,36 +24,87 @@ export function DraggableMarkerMap({
   zoom = 15,
   className = ''
 }: DraggableMarkerMapProps) {
-  const [position, setPosition] = useState(initialPosition)
+  const [viewState, setViewState] = useState({
+    longitude: initialPosition.lng,
+    latitude: initialPosition.lat,
+    zoom: zoom
+  })
+  
+  const [marker, setMarker] = useState({
+    longitude: initialPosition.lng,
+    latitude: initialPosition.lat
+  })
 
-  const handlePositionChange = useCallback(
-    (coords: { lat: number; lng: number }) => {
-      setPosition(coords)
-      onPositionChange(coords)
-    },
-    [onPositionChange]
-  )
+  // 當 initialPosition 改變時更新 marker 位置
+  useEffect(() => {
+    setMarker({
+      longitude: initialPosition.lng,
+      latitude: initialPosition.lat
+    })
+    setViewState(prev => ({
+      ...prev,
+      longitude: initialPosition.lng,
+      latitude: initialPosition.lat
+    }))
+  }, [initialPosition.lat, initialPosition.lng])
 
-  const center: LatLngExpression = [initialPosition.lat, initialPosition.lng]
+  const onMarkerDragEnd = useCallback((event: MarkerDragEvent) => {
+    const coords = {
+      lat: event.lngLat.lat,
+      lng: event.lngLat.lng
+    }
+    setMarker({
+      longitude: coords.lng,
+      latitude: coords.lat
+    })
+    onPositionChange(coords)
+  }, [onPositionChange])
+
+  // 點擊地圖時移動 Marker
+  const onMapClick = useCallback((event: mapboxgl.MapLayerMouseEvent) => {
+    const coords = {
+      lat: event.lngLat.lat,
+      lng: event.lngLat.lng
+    }
+    setMarker({
+      longitude: coords.lng,
+      latitude: coords.lat
+    })
+    onPositionChange(coords)
+  }, [onPositionChange])
+
+  if (!MAPBOX_TOKEN) {
+    return (
+      <div className={`flex items-center justify-center bg-gray-100 rounded-md border border-gray-200 ${className}`} style={{ height }}>
+        <p className="text-muted-foreground text-sm">請設定 Mapbox Token</p>
+      </div>
+    )
+  }
 
   return (
-    <div className={`rounded-md overflow-hidden ${className}`} style={{ height }}>
-      <MapContainer
-        center={center}
-        zoom={zoom}
+    <div className={`rounded-md overflow-hidden relative ${className}`} style={{ height }}>
+      <Map
+        {...viewState}
+        onMove={evt => setViewState(evt.viewState)}
         style={{ width: '100%', height: '100%' }}
-        scrollWheelZoom={true}
+        mapStyle="mapbox://styles/mapbox/streets-v12"
+        mapboxAccessToken={MAPBOX_TOKEN}
+        onClick={onMapClick}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <DraggableMarkerComponent
-          position={position}
-          onPositionChange={handlePositionChange}
-        />
-        <MapClickHandler onPositionChange={handlePositionChange} />
-      </MapContainer>
+        <GeolocateControl position="top-left" />
+        <FullscreenControl position="top-left" />
+        <NavigationControl position="top-left" />
+
+        <Marker
+          longitude={marker.longitude}
+          latitude={marker.latitude}
+          anchor="bottom"
+          draggable
+          onDragEnd={onMarkerDragEnd}
+        >
+          <MapPin className="h-8 w-8 text-primary fill-primary/20 -mb-1" />
+        </Marker>
+      </Map>
       <p className="text-xs text-muted-foreground mt-2 text-center">
         拖曳標記或點擊地圖來調整位置
       </p>
