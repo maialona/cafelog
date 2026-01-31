@@ -23,7 +23,7 @@ export function CafeMap({
   zoom = 15,
   height = '192px',
   showMarker = true,
-  markerLabel, // Mapbox Marker doesn't support hover tooltip easily without state, skipping for simple view or using title
+  markerLabel, // used as title
   className = ''
 }: CafeMapProps) {
   

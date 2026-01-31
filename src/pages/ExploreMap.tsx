@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl } from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useQuery } from "@tanstack/react-query";
-import { Map as MapIcon, Coffee, MapPin, X } from "lucide-react";
+import { Map as MapIcon, Coffee, MapPin } from "lucide-react";
 import { FogOverlay } from "@/components/map/FogOverlay";
 import {
   getAllVisitedCoords,
