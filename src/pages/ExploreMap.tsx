@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl } from "react-map-gl";
+import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl, MapLayerMouseEvent } from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useQuery } from "@tanstack/react-query";
 import { Map as MapIcon, Coffee, MapPin } from "lucide-react";
@@ -48,7 +48,7 @@ export function ExploreMap() {
       longitude={cafe.coords.lng}
       latitude={cafe.coords.lat}
       anchor="bottom"
-      onClick={e => {
+      onClick={(e: MapLayerMouseEvent) => {
         // If we let the click propagate, it might close the popup
         e.originalEvent.stopPropagation();
         setPopupInfo(cafe);

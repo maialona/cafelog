@@ -10,7 +10,6 @@ interface CafeMapProps {
   zoom?: number
   height?: string
   showMarker?: boolean
-  markerLabel?: string
   className?: string
 }
 
@@ -23,7 +22,6 @@ export function CafeMap({
   zoom = 15,
   height = '192px',
   showMarker = true,
-  markerLabel, // used as title
   className = ''
 }: CafeMapProps) {
   
