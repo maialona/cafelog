@@ -33,7 +33,7 @@ export function FogOverlay({
     canvas.style.width = '100%'
     canvas.style.height = '100%'
     canvas.style.pointerEvents = 'none'
-    canvas.style.zIndex = '50' // 確保在地圖之上但在 UI 之下
+    canvas.style.zIndex = '10' // 確保在地圖之上但在 UI 之下 (UI 為 z-50)
     canvasRef.current = canvas
     
     // 將 canvas 加入到地圖容器的 canvas container 中，或者直接 append 到 container
