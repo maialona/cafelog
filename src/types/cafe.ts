@@ -16,6 +16,7 @@ export interface CafePost {
   menuPhotos: Blob[]    // 1-2 張菜單照片
   notes?: string        // 評論/筆記
   wishlist: boolean     // 是否在願望清單中
+  visitDate?: string    // 造訪日期 (YYYY-MM-DD)
   createdAt: number     // Unix timestamp
 }
 

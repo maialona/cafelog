@@ -33,6 +33,7 @@ export function CreatePost() {
   const [menuPhotos, setMenuPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [menuPreviews, setMenuPreviews] = useState<string[]>([])
+  const [visitDate, setVisitDate] = useState('')
 
   // 搜尋狀態
   const [searchQuery, setSearchQuery] = useState('')
@@ -156,6 +157,7 @@ export function CreatePost() {
         menuPhotos: processedMenuPhotos,
         notes: notes || undefined,
         wishlist: isWishlist,
+        visitDate: visitDate || undefined,
         createdAt: Date.now()
       }
 
@@ -286,6 +288,18 @@ export function CreatePost() {
               />
             </div>
           )}
+
+          {/* 造訪日期（非必填） */}
+          <div className="space-y-2">
+            <Label htmlFor="visitDate">造訪日期 (選填)</Label>
+            <Input
+              id="visitDate"
+              type="date"
+              value={visitDate}
+              onChange={(e) => setVisitDate(e.target.value)}
+              max={new Date().toISOString().split('T')[0]} // 不可選未來日期
+            />
+          </div>
 
           {/* 評分（非願望清單時顯示） */}
           {!isWishlist && (
