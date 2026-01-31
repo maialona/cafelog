@@ -291,7 +291,7 @@ export function CreatePost() {
 
           {/* 造訪日期（非必填） */}
           <div className="space-y-2">
-            <Label htmlFor="visitDate">造訪日期 (選填)</Label>
+            <Label htmlFor="visitDate">造訪日期</Label>
             <Input
               id="visitDate"
               type="date"
