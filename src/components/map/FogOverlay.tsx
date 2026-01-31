@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useMap } from 'react-map-gl'
+import { useMap } from 'react-map-gl/mapbox'
 
 interface FogOverlayProps {
   visitedCoords: Array<{ lat: number; lng: number }>

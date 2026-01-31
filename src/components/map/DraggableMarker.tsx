@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
-import Map, { Marker, NavigationControl, FullscreenControl, GeolocateControl, MarkerDragEvent, MapLayerMouseEvent } from 'react-map-gl'
+import Map, { Marker, NavigationControl, FullscreenControl, GeolocateControl } from 'react-map-gl/mapbox'
+import type { MarkerDragEvent, MapMouseEvent } from 'react-map-gl/mapbox'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { MapPin } from 'lucide-react'
 
@@ -61,7 +62,7 @@ export function DraggableMarkerMap({
   }, [onPositionChange])
 
   // 點擊地圖時移動 Marker
-  const onMapClick = useCallback((event: MapLayerMouseEvent) => {
+  const onMapClick = useCallback((event: MapMouseEvent) => {
     const coords = {
       lat: event.lngLat.lat,
       lng: event.lngLat.lng

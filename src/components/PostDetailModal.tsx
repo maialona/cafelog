@@ -138,7 +138,6 @@ export function PostDetailModal({
                 <CafeMap
                   center={cafe.coords}
                   height="192px"
-                  markerLabel={cafe.name}
                 />
               </div>
             )}
