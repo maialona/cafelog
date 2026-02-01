@@ -66,13 +66,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // 手動重定向到 Google 登入頁面
       if (data?.url) {
-        console.log('Redirecting to Google OAuth:', data.url)
-        // 使用 replace 強制跳轉（不會被 SPA 路由攔截）
-        window.location.replace(data.url)
-        // 永遠不會執行到這裡
+        console.log('Will redirect to:', data.url)
+        // 使用 setTimeout 確保 React 程式碼執行完畢
+        setTimeout(() => {
+          window.location.href = data.url
+        }, 100)
+        return { error: null }
       }
       
-      return { error: null }
+      return { error: new Error('No OAuth URL returned') }
     } catch (err) {
       console.error('Google OAuth exception:', err)
       return { error: err as Error }
