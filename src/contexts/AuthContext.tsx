@@ -58,8 +58,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           skipBrowserRedirect: true
         }
       })
-      console.log('Google OAuth result:', { data, error })
-      console.log('OAuth URL:', data?.url)
       
       if (error) {
         console.error('Google OAuth error:', error)
@@ -68,8 +66,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // 手動重定向到 Google 登入頁面
       if (data?.url) {
-        console.log('Redirecting to:', data.url)
-        window.location.href = data.url
+        console.log('Redirecting to Google OAuth:', data.url)
+        // 使用 replace 強制跳轉（不會被 SPA 路由攔截）
+        window.location.replace(data.url)
+        // 永遠不會執行到這裡
       }
       
       return { error: null }
