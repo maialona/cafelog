@@ -50,9 +50,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('AuthContext: onAuthStateChange', event, session)
         setSession(session)
         setUser(session?.user ?? null)
+        
+        // 如果是在 callback 流程中，且收到的是 INITIAL_SESSION 且沒有 session，
+        // 則忽略這次更新（不要結束 loading），等待後續的 SIGNED_IN 事件
+        if (isAuthCallback && event === 'INITIAL_SESSION' && !session) {
+          console.log('Ignoring INITIAL_SESSION null during auth callback...')
+          return
+        }
+        
         setLoading(false)
       }
     )
+    
+    // 安全機制：如果是 callback flow，設定一個超時，避免無限轉圈
+    if (isAuthCallback) {
+      setTimeout(() => {
+        console.log('Auth callback timeout, forcing loading false')
+        setLoading(false)
+      }, 5000)
+    }
 
     return () => subscription.unsubscribe()
   }, [])
