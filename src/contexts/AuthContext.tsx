@@ -21,56 +21,90 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     console.log('AuthContext: mounting')
-    
+    let mounted = true
+
     // Check if we are in an OAuth callback flow
     const isAuthCallback = window.location.hash.includes('access_token') || 
                           window.location.hash.includes('type=recovery') ||
-                          window.location.search.includes('code=')
+                          window.location.search.includes('code=') ||
+                          window.location.search.includes('error=')
     
     console.log('Is Auth Callback?', isAuthCallback)
 
-    // 取得目前 session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('AuthContext: getSession result', session)
-      setSession(session)
-      setUser(session?.user ?? null)
+    const initAuth = async () => {
+      // 嘗試取得目前的 session
+      const { data: { session }, error } = await supabase.auth.getSession()
       
-      // 如果不是 callback flow，或者已經有 session，就結束 loading
-      // 如果是 callback flow 但沒有 session，我們等待 onAuthStateChange 來處理
-      if (!isAuthCallback || session) {
-        setLoading(false)
-      } else {
-        console.log('Waiting for auth state change to handle callback...')
-      }
-    })
+      if (!mounted) return
 
-    // 監聽 auth 狀態變化
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('AuthContext: onAuthStateChange', event, session)
+      console.log('AuthContext: getSession result', session, error)
+      
+      if (session) {
         setSession(session)
-        setUser(session?.user ?? null)
+        setUser(session.user)
+        setLoading(false)
+        return
+      }
+
+      // 如果沒有 session，但檢測到是 Callback 流程
+      if (isAuthCallback) {
+        console.log('No session yet, but callback detected. Waiting for event...')
+        // 這裡不設定 loading = false，繼續等待 onAuthStateChange 事件
         
-        // 如果是在 callback 流程中，且收到的是 INITIAL_SESSION 且沒有 session，
-        // 則忽略這次更新（不要結束 loading），等待後續的 SIGNED_IN 事件
-        if (isAuthCallback && event === 'INITIAL_SESSION' && !session) {
-          console.log('Ignoring INITIAL_SESSION null during auth callback...')
-          return
-        }
-        
+        // 安全機制：設定較長的超時，避免無限等待
+        setTimeout(() => {
+          if (mounted) {
+            setLoading((currentLoading) => {
+              if (currentLoading) {
+                console.warn('Auth callback timeout. Forcing loading false.')
+                return false
+              }
+              return currentLoading
+            })
+          }
+        }, 10000) 
+      } else {
+        // 不是 Callback，確認無 Session，結束 Loading
         setLoading(false)
       }
-    )
-    
-    // 安全機制：如果是 callback flow，設定一個超時，避免無限轉圈
-    if (isAuthCallback) {
-      setTimeout(() => {
-        console.log('Auth callback timeout, forcing loading false')
-        setLoading(false)
-      }, 5000)
     }
 
-    return () => subscription.unsubscribe()
+    initAuth()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('AuthContext: onAuthStateChange', event, session?.user?.id)
+        
+        if (!mounted) return
+
+        if (session) {
+          setSession(session)
+          setUser(session.user)
+          setLoading(false)
+        } else {
+          // 處理沒有 Session 的狀況
+          setSession(null)
+          setUser(null)
+          
+          if (event === 'SIGNED_OUT') {
+             setLoading(false)
+          } else if (event === 'INITIAL_SESSION') {
+             // 如果在 Callback 流程中收到 null 的 INITIAL_SESSION，我們忽略它
+             // 等待後續可能的 SIGNED_IN
+             if (!isAuthCallback) {
+                 setLoading(false)
+             } else {
+                  console.log('Ignoring null INITIAL_SESSION during callback')
+             }
+          }
+        }
+      }
+    )
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn = async (email: string, password: string) => {
