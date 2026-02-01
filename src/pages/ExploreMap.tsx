@@ -10,7 +10,7 @@ import {
   getCafeStats,
   getVisitedCafes,
 } from "@/services/cafes";
-import type { CafePost } from "@/types/cafe";
+import type { CafePostWithCoords } from "@/types/cafe";
 
 // Mapbox Access Token
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN
@@ -23,7 +23,7 @@ const TAIWAN_CENTER = {
 };
 
 export function ExploreMap() {
-  const [popupInfo, setPopupInfo] = useState<CafePost | null>(null);
+  const [popupInfo, setPopupInfo] = useState<CafePostWithCoords | null>(null);
 
   // 取得所有已打卡座標
   const { data: visitedCoords = [] } = useQuery({
@@ -43,11 +43,13 @@ export function ExploreMap() {
     queryFn: getCafeStats,
   });
 
-  const markers = useMemo(() => visitedCafes.map((cafe: CafePost) => (
+  const markers = useMemo(() => visitedCafes
+    .filter((cafe) => cafe.coords?.lat && cafe.coords?.lng)
+    .map((cafe) => (
     <Marker
       key={cafe.id}
-      longitude={cafe.coords.lng}
-      latitude={cafe.coords.lat}
+      longitude={cafe.coords!.lng}
+      latitude={cafe.coords!.lat}
       anchor="bottom"
       onClick={(e: MarkerEvent<MouseEvent>) => {
         // If we let the click propagate, it might close the popup
@@ -114,7 +116,7 @@ export function ExploreMap() {
         {markers}
 
         {/* Popup */}
-        {popupInfo && (
+        {popupInfo && popupInfo.coords && (
           <Popup
             anchor="top"
             longitude={popupInfo.coords.lng}
@@ -143,7 +145,7 @@ export function ExploreMap() {
       </Map>
 
       {/* 圖例 */}
-      <div className="absolute bottom-8 right-12 md:right-4 z-[50] bg-card/95 backdrop-blur rounded-lg shadow-lg p-3">
+      <div className="absolute bottom-20 md:bottom-8 right-4 z-[50] bg-card/95 backdrop-blur rounded-lg shadow-lg p-3">
         <div className="flex items-center gap-2 text-xs">
           <div className="w-4 h-4 rounded-full bg-gray-400/80" />
           <span>未探索區域</span>

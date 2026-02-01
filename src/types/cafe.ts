@@ -1,34 +1,51 @@
 /**
  * CafePost - 咖啡廳打卡紀錄的資料結構
- * 依照 PRD 規格設計，使用 IndexedDB 儲存
+ * Supabase 雲端版本
  */
 export interface CafePost {
-  id?: number
-  googlePlaceId: string
+  id: string              // UUID from Supabase
+  user_id: string         // User UUID
+  google_place_id: string | null
   name: string
-  address: string
-  coords: {
-    lat: number
-    lng: number
-  }
+  address: string | null
+  lat: number | null
+  lng: number | null
   rating: number
-  photos: Blob[]        // 最多 5 張環境照片
-  menuPhotos: Blob[]    // 1-2 張菜單照片
-  notes?: string        // 評論/筆記
-  wishlist: boolean     // 是否在願望清單中
-  visitDate?: string    // 造訪日期 (YYYY-MM-DD)
-  createdAt: number     // Unix timestamp
+  notes: string | null
+  wishlist: boolean
+  visit_date: string | null  // ISO date string (YYYY-MM-DD)
+  created_at: string      // ISO timestamp
+  // Photos stored separately in Supabase Storage
+  photo_urls: string[]
+  menu_photo_urls: string[]
 }
 
 /**
- * 用於建立新紀錄的輸入類型（不含 id）
+ * 用於建立新紀錄的輸入類型
  */
-export type CafePostInput = Omit<CafePost, 'id'>
+export type CafePostInput = Omit<CafePost, 'id' | 'user_id' | 'created_at'>
 
 /**
  * 用於更新紀錄的部分類型
  */
-export type CafePostUpdate = Partial<Omit<CafePost, 'id' | 'createdAt'>>
+export type CafePostUpdate = Partial<Omit<CafePost, 'id' | 'user_id' | 'created_at'>>
+
+/**
+ * 舊版本相容性：提供 coords 物件
+ */
+export interface CafePostWithCoords extends CafePost {
+  coords: { lat: number; lng: number } | null
+}
+
+/**
+ * 轉換為帶 coords 的格式
+ */
+export function toCafePostWithCoords(post: CafePost): CafePostWithCoords {
+  return {
+    ...post,
+    coords: post.lat && post.lng ? { lat: post.lat, lng: post.lng } : null
+  }
+}
 
 /**
  * Google Places API 搜尋結果預測

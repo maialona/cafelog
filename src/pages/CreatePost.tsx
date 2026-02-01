@@ -11,9 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StarRating } from '@/components/StarRating'
 import { DraggableMarkerMap } from '@/components/map/DraggableMarker'
 import { useToast } from '@/hooks/use-toast'
-import { createCafe } from '@/services/cafes'
+import { createCafe, uploadPhoto } from '@/services/cafes'
 import { searchCafes, getPlaceDetails, loadPlacesApi } from '@/services/google-places'
-import { processPhotos } from '@/utils/photos'
 import type { PlacePrediction, CafePostInput } from '@/types/cafe'
 
 export function CreatePost() {
@@ -143,22 +142,34 @@ export function CreatePost() {
       if (rating === 0 && !isWishlist) throw new Error('請選擇評分')
       if (!coords) throw new Error('請選擇位置')
 
-      // 壓縮並轉換照片為 Blob
-      const processedPhotos = await processPhotos(photos)
-      const processedMenuPhotos = await processPhotos(menuPhotos)
+      // 上傳照片到 Supabase Storage
+      const photoUrls: string[] = []
+      const menuPhotoUrls: string[] = []
+
+      // 上傳環境照片
+      for (const photo of photos) {
+        const url = await uploadPhoto(photo, 'photos')
+        if (url) photoUrls.push(url)
+      }
+
+      // 上傳菜單照片
+      for (const menuPhoto of menuPhotos) {
+        const url = await uploadPhoto(menuPhoto, 'menu')
+        if (url) menuPhotoUrls.push(url)
+      }
 
       const cafeData: CafePostInput = {
-        googlePlaceId: googlePlaceId || `manual_${Date.now()}`,
+        google_place_id: googlePlaceId || `manual_${Date.now()}`,
         name: cafeName,
-        address: cafeAddress,
-        coords,
+        address: cafeAddress || null,
+        lat: coords.lat,
+        lng: coords.lng,
         rating: isWishlist ? 0 : rating,
-        photos: processedPhotos,
-        menuPhotos: processedMenuPhotos,
-        notes: notes || undefined,
+        photo_urls: photoUrls,
+        menu_photo_urls: menuPhotoUrls,
+        notes: notes || null,
         wishlist: isWishlist,
-        visitDate: visitDate || undefined,
-        createdAt: Date.now()
+        visit_date: visitDate || null
       }
 
       return createCafe(cafeData)
@@ -352,7 +363,7 @@ export function CreatePost() {
 
           {/* 菜單照片 */}
           <div className="space-y-2">
-            <Label>菜單照片（最多 2 張）</Label>
+            <Label>菜單照片（最多 5 張）</Label>
             <div className="grid grid-cols-3 gap-2">
               {menuPreviews.map((preview, index) => (
                 <div
@@ -373,7 +384,7 @@ export function CreatePost() {
                   </button>
                 </div>
               ))}
-              {menuPhotos.length < 2 && (
+              {menuPhotos.length < 5 && (
                 <label className="aspect-square rounded-md border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
                   <Upload className="h-6 w-6 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground mt-1">

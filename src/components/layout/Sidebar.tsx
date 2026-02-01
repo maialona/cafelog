@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, PlusCircle, BookOpen, Heart, Coffee, Map, BarChart2 } from 'lucide-react'
+import { Home, PlusCircle, BookOpen, Heart, Coffee, Map, BarChart2, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -9,6 +9,7 @@ const navItems = [
   { to: '/wishlist', icon: Heart, label: '願望清單' },
   { to: '/explore', icon: Map, label: '探索地圖' },
   { to: '/stats', icon: BarChart2, label: '統計分析' },
+  { to: '/profile', icon: User, label: '個人檔案' },
 ]
 
 export function Sidebar() {
@@ -50,7 +51,7 @@ export function Sidebar() {
       {/* Footer */}
       <div className="p-4 border-t">
         <div className="hidden lg:block text-xs text-muted-foreground text-center">
-          離線優先 · 本地儲存
+          雲端同步 · Supabase
         </div>
       </div>
     </aside>

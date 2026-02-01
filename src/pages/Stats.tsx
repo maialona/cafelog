@@ -27,7 +27,7 @@ export function Stats() {
 
   // 處理年度數據
   const yearlyData = visitedCafes.reduce((acc, cafe) => {
-    const date = new Date(cafe.createdAt)
+    const date = new Date(cafe.created_at)
     const year = date.getFullYear().toString()
     acc[year] = (acc[year] || 0) + 1
     return acc
@@ -43,9 +43,9 @@ export function Stats() {
   // 處理月度數據 (今年度)
   const currentYear = new Date().getFullYear()
   const monthlyData = visitedCafes
-    .filter((cafe) => new Date(cafe.createdAt).getFullYear() === currentYear)
+    .filter((cafe) => new Date(cafe.created_at).getFullYear() === currentYear)
     .reduce((acc, cafe) => {
-      const date = new Date(cafe.createdAt)
+      const date = new Date(cafe.created_at)
       const month = date.getMonth() // 0-11
       acc[month] = (acc[month] || 0) + 1
       return acc
@@ -96,7 +96,7 @@ export function Stats() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {visitedCafes.filter(c => new Date(c.createdAt).getFullYear() === currentYear).length}
+              {visitedCafes.filter(c => new Date(c.created_at).getFullYear() === currentYear).length}
             </div>
             <p className="text-xs text-muted-foreground">
               {currentYear} 年累計

@@ -14,14 +14,14 @@ import {
 } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
 import { getWishlistCafes, deleteCafe, toggleWishlist } from '@/services/cafes'
-import type { CafePost } from '@/types/cafe'
+import type { CafePostWithCoords } from '@/types/cafe'
 
 export function Wishlist() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
-  const [cafeToDelete, setCafeToDelete] = useState<CafePost | null>(null)
+  const [cafeToDelete, setCafeToDelete] = useState<CafePostWithCoords | null>(null)
 
   const { data: wishlistCafes = [], isLoading } = useQuery({
     queryKey: ['wishlistCafes'],
@@ -29,7 +29,7 @@ export function Wishlist() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => deleteCafe(id),
+    mutationFn: (id: string) => deleteCafe(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wishlistCafes'] })
       queryClient.invalidateQueries({ queryKey: ['cafes'] })
@@ -39,7 +39,7 @@ export function Wishlist() {
   })
 
   const markAsVisitedMutation = useMutation({
-    mutationFn: (id: number) => toggleWishlist(id),
+    mutationFn: (id: string) => toggleWishlist(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wishlistCafes'] })
       queryClient.invalidateQueries({ queryKey: ['cafes'] })

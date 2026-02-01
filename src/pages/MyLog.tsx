@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, MoreVertical, Trash2, Heart, HeartOff, BookOpen } from 'lucide-react'
@@ -23,8 +23,7 @@ import { StarRating } from '@/components/StarRating'
 import { PostDetailModal } from '@/components/PostDetailModal'
 import { useToast } from '@/hooks/use-toast'
 import { getAllCafes, deleteCafe, toggleWishlist } from '@/services/cafes'
-import { createBlobUrl, revokeBlobUrl } from '@/utils/photos'
-import type { CafePost } from '@/types/cafe'
+import type { CafePostWithCoords } from '@/types/cafe'
 
 function CafeListItem({
   cafe,
@@ -32,20 +31,13 @@ function CafeListItem({
   onDelete,
   onToggleWishlist
 }: {
-  cafe: CafePost
+  cafe: CafePostWithCoords
   onView: () => void
   onDelete: () => void
   onToggleWishlist: () => void
 }) {
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (cafe.photos && cafe.photos.length > 0) {
-      const url = createBlobUrl(cafe.photos[0])
-      setPhotoUrl(url)
-      return () => revokeBlobUrl(url)
-    }
-  }, [cafe.photos])
+  // 使用 photo_urls (雲端 URL)
+  const photoUrl = cafe.photo_urls && cafe.photo_urls.length > 0 ? cafe.photo_urls[0] : null
 
   return (
     <Card className="overflow-hidden">
@@ -69,7 +61,6 @@ function CafeListItem({
             )}
           </div>
 
-          {/* 資訊 */}
           {/* 資訊 */}
           <div className="flex-1 min-w-0 space-y-2 cursor-pointer text-left py-1" onClick={onView}>
             <div className="w-full">
@@ -128,8 +119,8 @@ export function MyLog() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
-  const [selectedCafe, setSelectedCafe] = useState<CafePost | null>(null)
-  const [cafeToDelete, setCafeToDelete] = useState<CafePost | null>(null)
+  const [selectedCafe, setSelectedCafe] = useState<CafePostWithCoords | null>(null)
+  const [cafeToDelete, setCafeToDelete] = useState<CafePostWithCoords | null>(null)
 
   const { data: cafes = [], isLoading } = useQuery({
     queryKey: ['cafes'],
@@ -140,7 +131,7 @@ export function MyLog() {
   const wishlistCafes = cafes.filter((c) => c.wishlist)
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => deleteCafe(id),
+    mutationFn: (id: string) => deleteCafe(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cafes'] })
       queryClient.invalidateQueries({ queryKey: ['visitedCoords'] })
@@ -151,7 +142,7 @@ export function MyLog() {
   })
 
   const toggleWishlistMutation = useMutation({
-    mutationFn: (id: number) => toggleWishlist(id),
+    mutationFn: (id: string) => toggleWishlist(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cafes'] })
       toast({ title: '已更新願望清單狀態' })

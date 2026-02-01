@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, PlusCircle, BookOpen, Heart, Map, BarChart2 } from 'lucide-react'
+import { Home, PlusCircle, BookOpen, Map, BarChart2, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -8,7 +8,7 @@ const navItems = [
   { to: '/explore', icon: Map, label: '探索' },
   { to: '/stats', icon: BarChart2, label: '統計' },
   { to: '/my-log', icon: BookOpen, label: '日誌' },
-  { to: '/wishlist', icon: Heart, label: '願望' },
+  { to: '/profile', icon: User, label: '我的' },
 ]
 
 export function BottomBar() {

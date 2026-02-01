@@ -10,11 +10,10 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { StarRating } from '@/components/StarRating'
 import { CafeMap } from '@/components/map/CafeMap'
-import { createBlobUrl, revokeBlobUrl } from '@/utils/photos'
-import type { CafePost } from '@/types/cafe'
+import type { CafePost, CafePostWithCoords } from '@/types/cafe'
 
 interface PostDetailModalProps {
-  cafe: CafePost | null
+  cafe: CafePost | CafePostWithCoords | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -27,24 +26,24 @@ export function PostDetailModal({
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
 
-  // 從 Blob 建立所有照片的預覽 URL
+  // 合併照片和菜單照片 URL
   useEffect(() => {
     if (!cafe) return
 
-    const allPhotos = [...(cafe.photos || []), ...(cafe.menuPhotos || [])]
-    const urls = allPhotos.map((blob) => createBlobUrl(blob))
-    setPhotoUrls(urls)
+    const allPhotos = [...(cafe.photo_urls || []), ...(cafe.menu_photo_urls || [])]
+    setPhotoUrls(allPhotos)
     setCurrentPhotoIndex(0)
-
-    return () => {
-      urls.forEach(revokeBlobUrl)
-    }
   }, [cafe])
 
   if (!cafe) return null
 
   const hasPhotos = photoUrls.length > 0
-  const hasLocation = cafe.coords?.lat && cafe.coords?.lng
+  // 支援兩種格式：coords 物件 或 lat/lng 直接欄位
+  const hasLocation = ('coords' in cafe && cafe.coords?.lat && cafe.coords?.lng) || 
+                     (cafe.lat && cafe.lng)
+  const mapCenter = 'coords' in cafe && cafe.coords 
+    ? cafe.coords 
+    : (cafe.lat && cafe.lng ? { lat: cafe.lat, lng: cafe.lng } : null)
 
   const handlePrevPhoto = () => {
     setCurrentPhotoIndex((prev) =>
@@ -133,10 +132,10 @@ export function PostDetailModal({
             )}
 
             {/* 地圖 */}
-            {hasLocation && (
+            {hasLocation && mapCenter && (
               <div className="mt-4">
                 <CafeMap
-                  center={cafe.coords}
+                  center={mapCenter}
                   height="192px"
                 />
               </div>
@@ -157,7 +156,7 @@ export function PostDetailModal({
               <Calendar className="h-3 w-3" />
               <span>
                 建立於{' '}
-                {new Date(cafe.createdAt).toLocaleDateString('zh-TW', {
+                {new Date(cafe.created_at).toLocaleDateString('zh-TW', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'

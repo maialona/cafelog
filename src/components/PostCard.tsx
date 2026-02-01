@@ -1,26 +1,16 @@
-import { useState, useEffect } from 'react'
 import { MapPin } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { StarRating } from '@/components/StarRating'
-import { createBlobUrl, revokeBlobUrl } from '@/utils/photos'
-import type { CafePost } from '@/types/cafe'
+import type { CafePost, CafePostWithCoords } from '@/types/cafe'
 
 interface PostCardProps {
-  cafe: CafePost
+  cafe: CafePost | CafePostWithCoords
   onClick?: () => void
 }
 
 export function PostCard({ cafe, onClick }: PostCardProps) {
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
-
-  // 從 Blob 建立預覽 URL
-  useEffect(() => {
-    if (cafe.photos && cafe.photos.length > 0) {
-      const url = createBlobUrl(cafe.photos[0])
-      setPhotoUrl(url)
-      return () => revokeBlobUrl(url)
-    }
-  }, [cafe.photos])
+  // 使用 photo_urls 陣列中的第一張照片
+  const photoUrl = cafe.photo_urls && cafe.photo_urls.length > 0 ? cafe.photo_urls[0] : null
 
   return (
     <Card
