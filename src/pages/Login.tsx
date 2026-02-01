@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Coffee, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast'
 
 export function Login() {
   const navigate = useNavigate()
-  const { signIn, signUp, signInWithGoogle } = useAuth()
+  const { user, signIn, signUp, signInWithGoogle } = useAuth()
   const { toast } = useToast()
   
   const [email, setEmail] = useState('')
@@ -18,6 +18,14 @@ export function Login() {
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
+
+  // 如果使用者已經登入，重定向到首頁
+  useEffect(() => {
+    if (user) {
+      console.log('User already logged in, redirecting...')
+      navigate('/my-log')
+    }
+  }, [user, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

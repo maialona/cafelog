@@ -20,8 +20,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    console.log('AuthContext: mounting')
+    
     // 取得目前 session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('AuthContext: getSession result', session)
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
@@ -29,7 +32,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 監聽 auth 狀態變化
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
+        console.log('AuthContext: onAuthStateChange', event, session)
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
