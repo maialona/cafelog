@@ -97,9 +97,14 @@ export function Login() {
         <CardContent>
           {/* Google 登入按鈕 */}
           <Button
+            type="button"
             variant="outline"
             className="w-full mb-4"
-            onClick={handleGoogleSignIn}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              handleGoogleSignIn()
+            }}
             disabled={isGoogleLoading || isLoading}
           >
             {isGoogleLoading ? (
@@ -137,7 +142,10 @@ export function Login() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={(e) => {
+            console.log('Form submitted!')
+            handleSubmit(e)
+          }} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
