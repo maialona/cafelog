@@ -64,9 +64,12 @@ export function Login() {
   }
 
   const handleGoogleSignIn = async () => {
+    console.log('Google sign in button clicked')
     setIsGoogleLoading(true)
     try {
+      console.log('Calling signInWithGoogle...')
       const { error } = await signInWithGoogle()
+      console.log('signInWithGoogle returned, error:', error)
       if (error) {
         toast({
           title: 'Google 登入失敗',
