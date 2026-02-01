@@ -22,12 +22,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     console.log('AuthContext: mounting')
     
+    // Check if we are in an OAuth callback flow
+    const isAuthCallback = window.location.hash.includes('access_token') || 
+                          window.location.hash.includes('type=recovery') ||
+                          window.location.search.includes('code=')
+    
+    console.log('Is Auth Callback?', isAuthCallback)
+
     // 取得目前 session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('AuthContext: getSession result', session)
       setSession(session)
       setUser(session?.user ?? null)
-      setLoading(false)
+      
+      // 如果不是 callback flow，或者已經有 session，就結束 loading
+      // 如果是 callback flow 但沒有 session，我們等待 onAuthStateChange 來處理
+      if (!isAuthCallback || session) {
+        setLoading(false)
+      } else {
+        console.log('Waiting for auth state change to handle callback...')
+      }
     })
 
     // 監聽 auth 狀態變化
