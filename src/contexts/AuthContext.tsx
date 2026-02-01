@@ -58,6 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       })
       console.log('Google OAuth result:', { data, error })
+      console.log('OAuth URL:', data?.url)
+      console.log('OAuth provider:', data?.provider)
       if (error) {
         console.error('Google OAuth error:', error)
       }
