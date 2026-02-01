@@ -105,26 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: err as Error }
     }
   }
-        console.error('Google OAuth error:', error)
-        return { error: error as Error | null }
-      }
-      
-      // 手動重定向到 Google 登入頁面
-      if (data?.url) {
-        console.log('Will redirect to:', data.url)
-        // 使用 setTimeout 確保 React 程式碼執行完畢
-        setTimeout(() => {
-          window.location.href = data.url
-        }, 100)
-        return { error: null }
-      }
-      
-      return { error: new Error('No OAuth URL returned') }
-    } catch (err) {
-      console.error('Google OAuth exception:', err)
-      return { error: err as Error }
-    }
-  }
+
 
   const signOut = async () => {
     await supabase.auth.signOut()
