@@ -85,11 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/my-log`,
-          skipBrowserRedirect: true,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent'
@@ -98,6 +97,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       
       if (error) {
+        console.error('Google OAuth error:', error)
+      }
+      return { error: error as Error | null }
+    } catch (err) {
+      console.error('Google OAuth exception:', err)
+      return { error: err as Error }
+    }
+  }
         console.error('Google OAuth error:', error)
         return { error: error as Error | null }
       }
