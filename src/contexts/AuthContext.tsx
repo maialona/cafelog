@@ -23,80 +23,125 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('AuthContext: mounting')
     let mounted = true
 
-    // Check if we are in an OAuth callback flow
-    const isAuthCallback = window.location.hash.includes('access_token') || 
-                          window.location.hash.includes('type=recovery') ||
-                          window.location.search.includes('code=') ||
-                          window.location.search.includes('error=')
-    
-    console.log('Is Auth Callback?', isAuthCallback)
-
     const initAuth = async () => {
-      // 嘗試取得目前的 session
-      const { data: { session }, error } = await supabase.auth.getSession()
+      // 檢查 URL 中是否有 OAuth callback 參數
+      const hashParams = new URLSearchParams(window.location.hash.substring(1))
+      const queryParams = new URLSearchParams(window.location.search)
       
-      if (!mounted) return
+      const accessToken = hashParams.get('access_token')
+      const refreshToken = hashParams.get('refresh_token')
+      const code = queryParams.get('code')
+      const error = queryParams.get('error')
+      
+      console.log('OAuth params check:', { 
+        hasAccessToken: !!accessToken, 
+        hasCode: !!code, 
+        hasError: !!error 
+      })
 
-      console.log('AuthContext: getSession result', session, error)
-      
-      if (session) {
-        setSession(session)
-        setUser(session.user)
+      // 如果有 error 參數，表示 OAuth 失敗
+      if (error) {
+        console.error('OAuth error from provider:', queryParams.get('error_description'))
         setLoading(false)
         return
       }
 
-      // 如果沒有 session，但檢測到是 Callback 流程
-      if (isAuthCallback) {
-        console.log('No session yet, but callback detected. Waiting for event...')
-        // 這裡不設定 loading = false，繼續等待 onAuthStateChange 事件
-        
-        // 安全機制：設定較長的超時，避免無限等待
-        setTimeout(() => {
-          if (mounted) {
-            setLoading((currentLoading) => {
-              if (currentLoading) {
-                console.warn('Auth callback timeout. Forcing loading false.')
-                return false
-              }
-              return currentLoading
-            })
+      // 如果 URL 中有 code，明確調用 exchangeCodeForSession
+      if (code) {
+        console.log('PKCE code detected, exchanging for session...')
+        try {
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+          
+          if (!mounted) return
+          
+          if (exchangeError) {
+            console.error('Code exchange failed:', exchangeError)
+            setLoading(false)
+            return
           }
-        }, 10000) 
-      } else {
-        // 不是 Callback，確認無 Session，結束 Loading
-        setLoading(false)
+          
+          if (data.session) {
+            console.log('Session established from code exchange!')
+            setSession(data.session)
+            setUser(data.session.user)
+            setLoading(false)
+            
+            // 清除 URL 中的 code 參數
+            window.history.replaceState({}, '', window.location.pathname)
+            return
+          }
+        } catch (err) {
+          console.error('Code exchange exception:', err)
+          setLoading(false)
+          return
+        }
       }
+
+      // 如果 URL 中有 access_token (implicit flow)，讓 SDK 處理
+      if (accessToken) {
+        console.log('Access token in hash, setting session...')
+        try {
+          const { data, error: setSessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || ''
+          })
+          
+          if (!mounted) return
+          
+          if (setSessionError) {
+            console.error('Set session failed:', setSessionError)
+          } else if (data.session) {
+            console.log('Session established from hash tokens!')
+            setSession(data.session)
+            setUser(data.session.user)
+            
+            // 清除 URL 中的 hash
+            window.history.replaceState({}, '', window.location.pathname)
+          }
+        } catch (err) {
+          console.error('Set session exception:', err)
+        }
+        setLoading(false)
+        return
+      }
+
+      // 沒有 OAuth 參數，嘗試從 storage 取得現有 session
+      console.log('No OAuth params, checking existing session...')
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (!mounted) return
+
+      if (sessionError) {
+        console.error('getSession error:', sessionError)
+      }
+      
+      if (session) {
+        console.log('Existing session found')
+        setSession(session)
+        setUser(session.user)
+      } else {
+        console.log('No existing session')
+      }
+      
+      setLoading(false)
     }
 
     initAuth()
 
+    // 監聽後續的 auth 狀態變化（例如 token refresh、logout 等）
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('AuthContext: onAuthStateChange', event, session?.user?.id)
         
         if (!mounted) return
 
-        if (session) {
+        // 只處理非初始化的事件
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setSession(session)
-          setUser(session.user)
-          setLoading(false)
-        } else {
-          // 處理沒有 Session 的狀況
+          setUser(session?.user ?? null)
+        } else if (event === 'SIGNED_OUT') {
           setSession(null)
           setUser(null)
-          
-          if (event === 'SIGNED_OUT') {
-             setLoading(false)
-          } else if (event === 'INITIAL_SESSION') {
-             // 如果在 Callback 流程中收到 null 的 INITIAL_SESSION，我們忽略它
-             // 等待後續可能的 SIGNED_IN
-             if (!isAuthCallback) {
-                 setLoading(false)
-             } else {
-                  console.log('Ignoring null INITIAL_SESSION during callback')
-             }
-          }
         }
       }
     )
