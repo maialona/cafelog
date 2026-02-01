@@ -69,11 +69,11 @@ export function PostDetailModal({
             {/* 照片輪播 */}
             {hasPhotos && (
               <div className="relative mt-4">
-                <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden">
+                <div className="aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
                   <img
                     src={photoUrls[currentPhotoIndex]}
                     alt={`${cafe.name} - 照片 ${currentPhotoIndex + 1}`}
-                    className="w-full h-full object-cover"
+                    className="max-w-full max-h-full object-contain"
                   />
                 </div>
 

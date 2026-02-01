@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, MoreVertical, Trash2, Heart, HeartOff, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -151,8 +152,26 @@ export function MyLog() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="container max-w-lg mx-auto px-4 py-6 space-y-4">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-10 w-28 rounded-full" />
+        </div>
+        <Skeleton className="h-10 w-full" />
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="overflow-hidden">
+            <CardContent className="p-0">
+              <div className="flex gap-4 p-4">
+                <Skeleton className="w-20 h-20 rounded-md shrink-0" />
+                <div className="flex-1 space-y-2 py-1">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     )
   }

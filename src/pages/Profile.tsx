@@ -2,7 +2,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Skeleton } from '@/components/ui/skeleton'
 import { LogOut, Mail, Calendar, Coffee } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getCafeStats } from '@/services/cafes'
@@ -11,7 +12,7 @@ export function Profile() {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
 
-  const { data: stats } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['cafeStats'],
     queryFn: getCafeStats
   })
@@ -20,9 +21,6 @@ export function Profile() {
     await signOut()
     navigate('/login')
   }
-
-  // 從 email 取得使用者首字母
-  const userInitial = user?.email?.charAt(0).toUpperCase() || 'U'
 
   // 格式化註冊日期
   const joinDate = user?.created_at
@@ -42,8 +40,9 @@ export function Profile() {
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
+              <AvatarImage src="/coffee-beans.png" alt="咖啡豆" />
               <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-                {userInitial}
+                <Coffee className="h-8 w-8" />
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
@@ -68,15 +67,23 @@ export function Profile() {
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-4 bg-muted rounded-lg">
-              <p className="text-3xl font-bold text-primary">
-                {stats?.visited || 0}
-              </p>
+              {statsLoading ? (
+                <Skeleton className="h-9 w-12 mx-auto mb-1" />
+              ) : (
+                <p className="text-3xl font-bold text-primary">
+                  {stats?.visited || 0}
+                </p>
+              )}
               <p className="text-sm text-muted-foreground">已造訪</p>
             </div>
             <div className="text-center p-4 bg-muted rounded-lg">
-              <p className="text-3xl font-bold text-rose-500">
-                {stats?.wishlist || 0}
-              </p>
+              {statsLoading ? (
+                <Skeleton className="h-9 w-12 mx-auto mb-1" />
+              ) : (
+                <p className="text-3xl font-bold text-rose-500">
+                  {stats?.wishlist || 0}
+                </p>
+              )}
               <p className="text-sm text-muted-foreground">願望清單</p>
             </div>
           </div>

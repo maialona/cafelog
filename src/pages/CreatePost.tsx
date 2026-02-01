@@ -33,6 +33,7 @@ export function CreatePost() {
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [menuPreviews, setMenuPreviews] = useState<string[]>([])
   const [visitDate, setVisitDate] = useState('')
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   // 搜尋狀態
   const [searchQuery, setSearchQuery] = useState('')
@@ -142,6 +143,11 @@ export function CreatePost() {
       if (rating === 0 && !isWishlist) throw new Error('請選擇評分')
       if (!coords) throw new Error('請選擇位置')
 
+      // 計算總照片數量
+      const totalPhotos = photos.length + menuPhotos.length
+      let uploadedCount = 0
+      setUploadProgress(0)
+
       // 上傳照片到 Supabase Storage
       const photoUrls: string[] = []
       const menuPhotoUrls: string[] = []
@@ -150,13 +156,20 @@ export function CreatePost() {
       for (const photo of photos) {
         const url = await uploadPhoto(photo, 'photos')
         if (url) photoUrls.push(url)
+        uploadedCount++
+        setUploadProgress(totalPhotos > 0 ? Math.round((uploadedCount / totalPhotos) * 80) : 80)
       }
 
       // 上傳菜單照片
       for (const menuPhoto of menuPhotos) {
         const url = await uploadPhoto(menuPhoto, 'menu')
         if (url) menuPhotoUrls.push(url)
+        uploadedCount++
+        setUploadProgress(totalPhotos > 0 ? Math.round((uploadedCount / totalPhotos) * 80) : 80)
       }
+      
+      // 照片上傳完成，開始建立紀錄
+      setUploadProgress(90)
 
       const cafeData: CafePostInput = {
         google_place_id: googlePlaceId || `manual_${Date.now()}`,
@@ -175,6 +188,7 @@ export function CreatePost() {
       return createCafe(cafeData)
     },
     onSuccess: () => {
+      setUploadProgress(100)
       queryClient.invalidateQueries({ queryKey: ['cafes'] })
       queryClient.invalidateQueries({ queryKey: ['visitedCoords'] })
       queryClient.invalidateQueries({ queryKey: ['cafeStats'] })
@@ -187,6 +201,7 @@ export function CreatePost() {
       navigate(isWishlist ? '/wishlist' : '/my-log')
     },
     onError: (error) => {
+      setUploadProgress(0)
       toast({
         title: '錯誤',
         description: error instanceof Error ? error.message : '建立紀錄失敗',
@@ -416,14 +431,20 @@ export function CreatePost() {
 
           {/* 送出按鈕 */}
           <Button
-            className="w-full"
+            className="w-full relative overflow-hidden"
             onClick={() => createMutation.mutate()}
             disabled={createMutation.isPending}
           >
             {createMutation.isPending ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                建立中...
+                {/* 進度條背景 */}
+                <div 
+                  className="absolute inset-0 bg-primary/30 transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+                <span className="relative z-10">
+                  {uploadProgress < 80 ? '上傳照片中' : '建立紀錄中'} {uploadProgress}%
+                </span>
               </>
             ) : isWishlist ? (
               '加入願望清單'
