@@ -54,16 +54,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/my-log`
+          redirectTo: `${window.location.origin}/my-log`,
+          skipBrowserRedirect: true
         }
       })
       console.log('Google OAuth result:', { data, error })
       console.log('OAuth URL:', data?.url)
-      console.log('OAuth provider:', data?.provider)
+      
       if (error) {
         console.error('Google OAuth error:', error)
+        return { error: error as Error | null }
       }
-      return { error: error as Error | null }
+      
+      // 手動重定向到 Google 登入頁面
+      if (data?.url) {
+        console.log('Redirecting to:', data.url)
+        window.location.href = data.url
+      }
+      
+      return { error: null }
     } catch (err) {
       console.error('Google OAuth exception:', err)
       return { error: err as Error }
