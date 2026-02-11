@@ -15,6 +15,7 @@ export interface CafePost {
   wishlist: boolean
   visit_date: string | null  // ISO date string (YYYY-MM-DD)
   created_at: string      // ISO timestamp
+  tags: string[]          // 標籤列表
   // Photos stored separately in Supabase Storage
   photo_urls: string[]
   menu_photo_urls: string[]

@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StarRating } from '@/components/StarRating'
+import { TagSelector } from '@/components/TagSelector'
 import { DraggableMarkerMap } from '@/components/map/DraggableMarker'
 import { useToast } from '@/hooks/use-toast'
 import { createCafe, uploadPhoto } from '@/services/cafes'
@@ -34,6 +35,7 @@ export function CreatePost() {
   const [menuPreviews, setMenuPreviews] = useState<string[]>([])
   const [visitDate, setVisitDate] = useState('')
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [tags, setTags] = useState<string[]>([])
 
   // 搜尋狀態
   const [searchQuery, setSearchQuery] = useState('')
@@ -182,7 +184,8 @@ export function CreatePost() {
         menu_photo_urls: menuPhotoUrls,
         notes: notes || null,
         wishlist: isWishlist,
-        visit_date: visitDate || null
+        visit_date: visitDate || null,
+        tags
       }
 
       return createCafe(cafeData)
@@ -416,6 +419,9 @@ export function CreatePost() {
               )}
             </div>
           </div>
+
+          {/* 標籤 */}
+          <TagSelector selectedTags={tags} onChange={setTags} />
 
           {/* 筆記 */}
           <div className="space-y-2">

@@ -1,4 +1,4 @@
-import { MapPin, Pencil } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { StarRating } from '@/components/StarRating'
 import type { CafePost, CafePostWithCoords } from '@/types/cafe'
@@ -6,12 +6,13 @@ import type { CafePost, CafePostWithCoords } from '@/types/cafe'
 interface PostCardProps {
   cafe: CafePost | CafePostWithCoords
   onClick?: () => void
-  onEdit?: () => void
 }
 
-export function PostCard({ cafe, onClick, onEdit }: PostCardProps) {
-  // 使用 photo_urls 陣列中的第一張照片
+
+
+export function PostCard({ cafe, onClick }: PostCardProps) {
   const photoUrl = cafe.photo_urls && cafe.photo_urls.length > 0 ? cafe.photo_urls[0] : null
+  const tags = cafe.tags || []
 
   return (
     <Card
@@ -31,35 +32,39 @@ export function PostCard({ cafe, onClick, onEdit }: PostCardProps) {
             無照片
           </div>
         )}
-        {/* 願望清單標記 */}
         {cafe.wishlist && (
           <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
             願望清單
           </div>
         )}
-        {/* 編輯按鈕 */}
-        {onEdit && (
-          <button
-            className="absolute top-2 left-2 bg-white/90 hover:bg-white text-gray-700 rounded-full p-1.5 shadow-sm transition-colors"
-            onClick={(e) => {
-              e.stopPropagation()
-              onEdit()
-            }}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </button>
-        )}
       </div>
 
       <CardContent className="p-4 space-y-2">
-        {/* 名稱 */}
         <div className="w-full">
           <h3 className="font-bold text-lg leading-normal line-clamp-1 tracking-wide" title={cafe.name}>
             {cafe.name}
           </h3>
         </div>
 
-        {/* 地址 */}
+        {/* 標籤 */}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] bg-primary/10 text-primary"
+              >
+                {tag}
+              </span>
+            ))}
+            {tags.length > 3 && (
+              <span className="text-[10px] text-muted-foreground px-1 py-0.5">
+                +{tags.length - 3}
+              </span>
+            )}
+          </div>
+        )}
+
         {cafe.address && (
           <div className="flex items-start gap-1 text-xs text-muted-foreground w-full">
             <MapPin className="h-3 w-3 shrink-0 mt-0.5" />
@@ -69,7 +74,6 @@ export function PostCard({ cafe, onClick, onEdit }: PostCardProps) {
           </div>
         )}
 
-        {/* 評分 */}
         <div className="pt-1">
           <StarRating rating={cafe.rating} size="sm" readonly />
         </div>

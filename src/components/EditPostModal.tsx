@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { StarRating } from '@/components/StarRating'
+import { TagSelector } from '@/components/TagSelector'
 import { useToast } from '@/hooks/use-toast'
 import { updateCafe, uploadPhoto } from '@/services/cafes'
 import type { CafePostWithCoords } from '@/types/cafe'
@@ -36,6 +37,7 @@ export function EditPostModal({ cafe, open, onOpenChange }: EditPostModalProps) 
   const [newPhotoPreviews, setNewPhotoPreviews] = useState<string[]>([])
   const [newMenuPreviews, setNewMenuPreviews] = useState<string[]>([])
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [tags, setTags] = useState<string[]>([])
 
   // 初始化表單
   useEffect(() => {
@@ -50,6 +52,7 @@ export function EditPostModal({ cafe, open, onOpenChange }: EditPostModalProps) 
       setNewPhotoPreviews([])
       setNewMenuPreviews([])
       setUploadProgress(0)
+      setTags([...(cafe.tags || [])])
     }
   }, [cafe, open])
 
@@ -140,7 +143,8 @@ export function EditPostModal({ cafe, open, onOpenChange }: EditPostModalProps) 
         notes: notes || null,
         visit_date: visitDate || null,
         photo_urls: finalPhotoUrls,
-        menu_photo_urls: finalMenuPhotoUrls
+        menu_photo_urls: finalMenuPhotoUrls,
+        tags
       })
 
       if (!success) throw new Error('更新失敗')
@@ -281,6 +285,9 @@ export function EditPostModal({ cafe, open, onOpenChange }: EditPostModalProps) 
                 )}
               </div>
             </div>
+
+            {/* 標籤 */}
+            <TagSelector selectedTags={tags} onChange={setTags} />
 
             {/* 評論 */}
             <div className="space-y-2">

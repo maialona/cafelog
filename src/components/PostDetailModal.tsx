@@ -140,6 +140,20 @@ export function PostDetailModal({
                 編輯紀錄
               </Button>
 
+              {/* 標籤 */}
+              {(cafe.tags || []).length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-4">
+                  {(cafe.tags || []).map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-primary/10 text-primary"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {/* 地址 */}
               {cafe.address && (
                 <div className="flex items-start gap-2 mt-4 text-muted-foreground">

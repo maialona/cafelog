@@ -104,7 +104,8 @@ export async function createCafe(cafe: CafePostInput): Promise<string | null> {
       wishlist: cafe.wishlist,
       visit_date: cafe.visit_date,
       photo_urls: cafe.photo_urls || [],
-      menu_photo_urls: cafe.menu_photo_urls || []
+      menu_photo_urls: cafe.menu_photo_urls || [],
+      tags: cafe.tags || []
     })
     .select('id')
     .single()
@@ -252,6 +253,7 @@ function mapToCafePostWithCoords(row: CafePost): CafePostWithCoords {
     ...row,
     photo_urls: row.photo_urls || [],
     menu_photo_urls: row.menu_photo_urls || [],
+    tags: row.tags || [],
     coords: row.lat && row.lng ? { lat: row.lat, lng: row.lng } : null
   }
 }
