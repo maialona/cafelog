@@ -4,9 +4,10 @@ import { useQuery } from '@tanstack/react-query'
 import { Coffee } from 'lucide-react'
 import { PostCard } from '@/components/PostCard'
 import { PostDetailModal } from '@/components/PostDetailModal'
+import { EditPostModal } from '@/components/EditPostModal'
 import { useSearch } from '@/components/layout/AppShell'
 import { getAllCafes } from '@/services/cafes'
-import type { CafePost } from '@/types/cafe'
+import type { CafePostWithCoords } from '@/types/cafe'
 
 const breakpointColumns = {
   default: 4,
@@ -18,7 +19,8 @@ const breakpointColumns = {
 
 export function Home() {
   const { searchQuery } = useSearch()
-  const [selectedCafe, setSelectedCafe] = useState<CafePost | null>(null)
+  const [selectedCafe, setSelectedCafe] = useState<CafePostWithCoords | null>(null)
+  const [editingCafe, setEditingCafe] = useState<CafePostWithCoords | null>(null)
 
   const { data: cafes = [], isLoading } = useQuery({
     queryKey: ['cafes', searchQuery],
@@ -59,7 +61,11 @@ export function Home() {
       >
         {visitedCafes.map((cafe) => (
           <div key={cafe.id}>
-            <PostCard cafe={cafe} onClick={() => setSelectedCafe(cafe)} />
+            <PostCard
+              cafe={cafe}
+              onClick={() => setSelectedCafe(cafe)}
+              onEdit={() => setEditingCafe(cafe)}
+            />
           </div>
         ))}
       </Masonry>
@@ -68,6 +74,12 @@ export function Home() {
         cafe={selectedCafe}
         open={!!selectedCafe}
         onOpenChange={(open) => !open && setSelectedCafe(null)}
+      />
+
+      <EditPostModal
+        cafe={editingCafe}
+        open={!!editingCafe}
+        onOpenChange={(open) => !open && setEditingCafe(null)}
       />
     </div>
   )

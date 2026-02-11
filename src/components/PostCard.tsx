@@ -1,4 +1,4 @@
-import { MapPin } from 'lucide-react'
+import { MapPin, Pencil } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { StarRating } from '@/components/StarRating'
 import type { CafePost, CafePostWithCoords } from '@/types/cafe'
@@ -6,9 +6,10 @@ import type { CafePost, CafePostWithCoords } from '@/types/cafe'
 interface PostCardProps {
   cafe: CafePost | CafePostWithCoords
   onClick?: () => void
+  onEdit?: () => void
 }
 
-export function PostCard({ cafe, onClick }: PostCardProps) {
+export function PostCard({ cafe, onClick, onEdit }: PostCardProps) {
   // 使用 photo_urls 陣列中的第一張照片
   const photoUrl = cafe.photo_urls && cafe.photo_urls.length > 0 ? cafe.photo_urls[0] : null
 
@@ -35,6 +36,18 @@ export function PostCard({ cafe, onClick }: PostCardProps) {
           <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
             願望清單
           </div>
+        )}
+        {/* 編輯按鈕 */}
+        {onEdit && (
+          <button
+            className="absolute top-2 left-2 bg-white/90 hover:bg-white text-gray-700 rounded-full p-1.5 shadow-sm transition-colors"
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit()
+            }}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
         )}
       </div>
 

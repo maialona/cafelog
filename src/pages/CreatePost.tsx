@@ -93,7 +93,7 @@ export function CreatePost() {
     type: 'photos' | 'menu'
   ) => {
     const files = Array.from(e.target.files || [])
-    const maxCount = type === 'photos' ? 5 : 2
+    const maxCount = type === 'photos' ? 5 : 5
     const currentCount = type === 'photos' ? photos.length : menuPhotos.length
 
     if (files.length + currentCount > maxCount) {
